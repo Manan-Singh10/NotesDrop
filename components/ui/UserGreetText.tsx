@@ -15,7 +15,6 @@ const UserGreetText = () => {
     };
     fetchUser();
   }, [supabase]);
-  console.log(user);
   if (user !== null) {
     return (
       <p>
