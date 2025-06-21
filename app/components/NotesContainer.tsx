@@ -4,6 +4,7 @@ import NoteCard from "./NoteCard";
 import { useQuery } from "@tanstack/react-query";
 import { Note } from "@/lib/validators/notes";
 import NoteContainerHeader from "./NoteContainerHeader";
+import NotesContainerLoader from "@/components/ui/NotesContainerLoader";
 
 const NotesContainer = () => {
   const { data: notes = [], isLoading } = useQuery<Note[]>({
@@ -15,7 +16,7 @@ const NotesContainer = () => {
     },
   });
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <NotesContainerLoader />;
 
   return (
     <>
