@@ -17,9 +17,11 @@ const UserGreetText = () => {
   }, [supabase]);
   if (user !== null) {
     return (
-      <p>
-        hello&nbsp;
-        {user.user_metadata.full_name ?? "user"}
+      <p className="sm:text-lg">
+        Hello&nbsp;
+        <span className="font-semibold">
+          {user.user_metadata.full_name ?? "user"}
+        </span>
       </p>
     );
   }
