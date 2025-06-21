@@ -5,6 +5,7 @@ import UserGreetText from "@/components/ui/UserGreetText";
 import { createNote } from "@/lib/api/notes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { MdCancel } from "react-icons/md";
 
 const NoteContainerHeader = () => {
   const [isCreating, setIsCreating] = useState(false);
@@ -46,6 +47,11 @@ const NoteContainerHeader = () => {
           >
             Create
           </button>
+          <MdCancel
+            type="button"
+            size={22}
+            onClick={() => setIsCreating(false)}
+          />
         </form>
       ) : (
         <Button onClick={() => setIsCreating(true)} className="cursor-pointer">

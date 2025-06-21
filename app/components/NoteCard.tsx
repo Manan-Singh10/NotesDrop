@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import React, { useState } from "react";
-import { MdModeEdit } from "react-icons/md";
+import { MdCancel, MdModeEdit } from "react-icons/md";
 
 interface Props {
   title: string;
@@ -59,10 +59,15 @@ const NoteCard = ({ title, updateAt, previewImageUrl, noteId }: Props) => {
             <button
               type="submit"
               disabled={!newTitle.trim() || updateTitleMutation.isPending}
-              className="bg-blue-700 text-white px-2 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-700 text-white px-2 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Set
             </button>
+            <MdCancel
+              type="button"
+              size={22}
+              onClick={() => setIsEditingTitle(false)}
+            />
           </form>
         ) : (
           <>
