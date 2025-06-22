@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { updateTitle } from "@/lib/api/notes";
+import { deleteNote, updateTitle } from "@/lib/api/notes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import React, { useState } from "react";
-import { MdCancel, MdModeEdit } from "react-icons/md";
+import { MdCancel, MdDeleteOutline, MdModeEdit } from "react-icons/md";
 
 interface Props {
   title: string;
@@ -27,6 +27,11 @@ const NoteCard = ({ title, updateAt, previewImageUrl, noteId }: Props) => {
     },
   });
 
+  const deleteNoteMutation = useMutation({
+    mutationFn: async ({ noteId }: { noteId: string }) => deleteNote(noteId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
@@ -41,7 +46,7 @@ const NoteCard = ({ title, updateAt, previewImageUrl, noteId }: Props) => {
         height={150}
         alt="Note preview"
         priority
-        className="w-full h-40 object-cover rounded-t-md"
+        className="w-full h-40 object-cover rounded-t-md cursor-default"
       />
       <CardHeader className="text-lg font-semibold truncate flex items-center gap-2">
         {isEditingTitle ? (
@@ -81,6 +86,11 @@ const NoteCard = ({ title, updateAt, previewImageUrl, noteId }: Props) => {
                 setNewTitle(title);
                 setIsEditingTitle(true);
               }}
+            />
+            <MdDeleteOutline
+              size={20}
+              className="cursor-pointer"
+              onClick={() => deleteNoteMutation.mutate({ noteId })}
             />
           </>
         )}

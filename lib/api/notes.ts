@@ -25,3 +25,14 @@ export async function createNote(title: string) {
   }
   return res.json();
 }
+
+export async function deleteNote(noteId: string) {
+  const res = await fetch("/api/notes", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ noteId }),
+  });
+
+  if (!res.ok) throw new Error("Failed to delete note");
+  return res.json();
+}

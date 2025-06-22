@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Note } from "@/lib/validators/notes";
 import NoteContainerHeader from "./NoteContainerHeader";
 import NotesContainerLoader from "@/components/ui/NotesContainerLoader";
+import Link from "next/link";
 
 const NotesContainer = () => {
   const { data: notes = [], isLoading } = useQuery<Note[]>({
@@ -23,12 +24,13 @@ const NotesContainer = () => {
       <NoteContainerHeader />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {notes.map((note) => (
-          <NoteCard
-            key={note.id}
-            title={note.title}
-            updateAt={note.updated_at}
-            noteId={note.id}
-          />
+          <Link href={`/editor/${note.id}`} key={note.id}>
+            <NoteCard
+              title={note.title}
+              updateAt={note.updated_at}
+              noteId={note.id}
+            />
+          </Link>
         ))}
       </div>
     </>
