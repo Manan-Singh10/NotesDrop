@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
-import { Button } from "./button";
 import type { User } from "@supabase/supabase-js";
+import { Button } from "./button";
 
 const LoginButton = () => {
   const [user, setUser] = useState<User | null>(null);

@@ -3,6 +3,7 @@ import { deleteNote, updateTitle } from "@/lib/api/notes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 import { MdCancel, MdDeleteOutline, MdModeEdit } from "react-icons/md";
 
@@ -39,15 +40,17 @@ const NoteCard = ({ title, updateAt, previewImageUrl, noteId }: Props) => {
   };
 
   return (
-    <Card className="w-full max-w-sm hover:shadow-md transition-shadow duration-200 cursor-pointer p-0 pb-3 gap-2">
-      <Image
-        src={previewImageUrl || "https://picsum.photos/400/200"}
-        width={300}
-        height={150}
-        alt="Note preview"
-        priority
-        className="w-full h-40 object-cover rounded-t-md cursor-default"
-      />
+    <Card className="w-full max-w-sm hover:shadow-md transition-shadow duration-200 p-0 pb-3 gap-2">
+      <Link href={`/editor/${noteId}`}>
+        <Image
+          src={previewImageUrl || "https://picsum.photos/400/200"}
+          width={300}
+          height={150}
+          alt="Note preview"
+          priority
+          className="w-full h-40 object-cover rounded-t-md cursor-pointer"
+        />
+      </Link>
       <CardHeader className="text-lg font-semibold truncate flex items-center gap-2">
         {isEditingTitle ? (
           <form
