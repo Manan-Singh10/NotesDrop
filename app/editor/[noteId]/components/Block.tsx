@@ -7,12 +7,22 @@ import type { ResizeDirection } from "re-resizable";
 import Tiptap from "./TiptapEditor";
 import { useEditorStore } from "@/store/useEditroStore";
 
-const Block = ({ blockId }: { blockId: string }) => {
+interface BlockProps {
+  blockId: string;
+  position: { x: number; y: number; width: number; height: number };
+  content: Record<string, string>;
+}
+
+const Block = ({
+  blockId,
+  position: { x, y, width, height },
+  content,
+}: BlockProps) => {
   const [rnd, setRnd] = useState({
-    width: "120px",
-    height: "50px",
-    x: 10,
-    y: 10,
+    width,
+    height,
+    x,
+    y,
   });
 
   const activeBlockId = useEditorStore((s) => s.activeBlockId);
@@ -34,8 +44,8 @@ const Block = ({ blockId }: { blockId: string }) => {
   ) => {
     setRnd((prevRnd) => ({
       ...prevRnd,
-      width: ref.style.width,
-      height: ref.style.height,
+      width: parseFloat(ref.style.width),
+      height: parseFloat(ref.style.height),
       x: position.x,
       y: position.y,
     }));
@@ -50,7 +60,7 @@ const Block = ({ blockId }: { blockId: string }) => {
       onResizeStop={setSize}
       className={`${activeBlockId === blockId ? "border-1" : ""}`}
     >
-      <Tiptap blockId={blockId} />
+      <Tiptap blockId={blockId} content={content} />
     </Rnd>
   );
 };

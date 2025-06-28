@@ -14,7 +14,7 @@ const EditorPage = async ({ params }: Props) => {
   return (
     <div className="flex flex-col items-center w-full min-h-screen bg-stone-100">
       <EditorMenuBar />
-      <Canvas />
+      <Canvas noteId={noteId} />
       {noteId}
     </div>
   );

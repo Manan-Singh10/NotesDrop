@@ -6,15 +6,16 @@ import StarterKit from "@tiptap/starter-kit";
 
 interface Props {
   blockId: string;
+  content: Record<string, string>;
 }
 
-const Tiptap = ({ blockId }: Props) => {
+const Tiptap = ({ blockId, content }: Props) => {
   const setActiveEditor = useEditorStore((s) => s.setActiveEditor);
   const setActiveBlockId = useEditorStore((s) => s.setActiveBlockId);
 
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "<p>Hello World! 🌎️</p>",
+    content: content.text,
     onFocus: () => {
       if (editor) {
         setActiveEditor(editor);
