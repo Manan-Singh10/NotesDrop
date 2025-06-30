@@ -1,3 +1,6 @@
+// api/blocks/route.ts
+
+import { PatchBlockSchema } from "@/lib/validators/blocks";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -25,4 +28,34 @@ export async function GET(request: NextRequest) {
   }
   console.log(blocks);
   return NextResponse.json(blocks);
+}
+
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient();
+  const json = await request.json();
+  const validation = PatchBlockSchema.safeParse(json);
+
+  if (!validation.success)
+    return NextResponse.json(
+      { error: "Invalid request", issues: validation.error.errors },
+      { status: 400 }
+    );
+
+  const { position, blockId, content, page } = validation.data;
+
+  const { data, error } = await supabase
+    .from("blocks")
+    .update({
+      ...(position && { position }),
+      ...(content && { content }),
+      ...(page !== undefined && { page }),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", blockId)
+    .select();
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json(data, { status: 200 });
 }

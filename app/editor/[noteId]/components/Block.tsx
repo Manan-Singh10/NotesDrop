@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import type { ResizeDirection } from "re-resizable";
 import Tiptap from "./TiptapEditor";
 import { useEditorStore } from "@/store/useEditroStore";
+import { useMutation } from "@tanstack/react-query";
+import { updateBlock } from "@/lib/api/blocks";
 
 interface BlockProps {
   blockId: string;
@@ -24,8 +26,34 @@ const Block = ({
     x,
     y,
   });
+  const [isDirty, setIsDirty] = useState(false);
+  const saveTimeout = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    return () => {
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    };
+  }, []);
 
+  const mutation = useMutation({ mutationFn: updateBlock });
   const activeBlockId = useEditorStore((s) => s.activeBlockId);
+
+  const scheduleSave = () => {
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+
+    saveTimeout.current = setTimeout(() => {
+      console.log("Saving block", rnd);
+      mutation.mutate({
+        blockId,
+        position: {
+          x: rnd.x,
+          y: rnd.y,
+          width: rnd.width ?? 200,
+          height: rnd.height ?? 100,
+        },
+      });
+      setIsDirty(false);
+    }, 500);
+  };
 
   const setPosition = (e: DraggableEvent, data: DraggableData) => {
     setRnd((prevRnd) => ({
@@ -33,6 +61,8 @@ const Block = ({
       x: data.x,
       y: data.y,
     }));
+    setIsDirty(true);
+    scheduleSave();
   };
 
   const setSize = (
@@ -42,13 +72,20 @@ const Block = ({
     delta: { width: number; height: number },
     position: { x: number; y: number }
   ) => {
-    setRnd((prevRnd) => ({
-      ...prevRnd,
-      width: parseFloat(ref.style.width),
-      height: parseFloat(ref.style.height),
+    const newState = {
+      width: ref.offsetWidth,
+      height: ref.offsetHeight,
       x: position.x,
       y: position.y,
+    };
+
+    setRnd((prevRnd) => ({
+      ...prevRnd,
+      ...newState,
     }));
+
+    setIsDirty(true);
+    scheduleSave();
   };
 
   return (
@@ -61,6 +98,10 @@ const Block = ({
       className={`${activeBlockId === blockId ? "border-1" : ""}`}
     >
       <Tiptap blockId={blockId} content={content} />
+      {isDirty ||
+        (mutation.isPending && (
+          <div className="text-xs text-gray-500">saving...</div>
+        ))}
     </Rnd>
   );
 };
