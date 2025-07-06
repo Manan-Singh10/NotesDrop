@@ -22,10 +22,20 @@ export const PatchBlockSchema = z.object({
 export type UpdateBlockPayload = {
   blockId: string;
   position?: { x: number; y: number; width?: number; height?: number };
-  content?: Record<string, unknown>;
   page?: number;
   size?: { width: number; height: number };
 };
+
+export const UpdateContentSchema = z.object({
+  blockId: z.string().uuid(),
+  content: z
+    .object({
+      text: z.string(),
+    })
+    .optional(),
+});
+
+export type UpdateContentPayload = z.infer<typeof UpdateContentSchema>;
 
 export interface BlockType {
   id: string;

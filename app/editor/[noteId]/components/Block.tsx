@@ -28,6 +28,7 @@ const Block = ({
     y,
   });
   const activeBlockId = useEditorStore((s) => s.activeBlockId);
+  const isEditing = useEditorStore((s) => s.isEditing);
 
   const setPosition = (e: DraggableEvent, data: DraggableData) => {
     const newPosition = {
@@ -67,6 +68,7 @@ const Block = ({
 
   return (
     <Rnd
+      disableDragging={isEditing}
       bounds="parent"
       size={{ width: rnd.width, height: rnd.height }}
       position={{ x: rnd.x, y: rnd.y }}
