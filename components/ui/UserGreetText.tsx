@@ -9,9 +9,11 @@ const UserGreetText = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const user = session?.user;
+      setUser(user!);
     };
     fetchUser();
   }, [supabase]);

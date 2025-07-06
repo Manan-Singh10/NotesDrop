@@ -11,11 +11,13 @@ export async function GET(request: NextRequest) {
   const noteId = searchParams.get("noteId");
 
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError || !user)
+  const user = session?.user;
+
+  if (sessionError || !user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data: blocks, error } = await supabase
@@ -33,6 +35,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
   const json = await request.json();
+  console.log("Received PATCH request with data:", json);
   const validation = PatchBlockSchema.safeParse(json);
 
   if (!validation.success)
@@ -41,12 +44,13 @@ export async function PATCH(request: NextRequest) {
       { status: 400 }
     );
 
-  const { position, blockId, content, page } = validation.data;
+  const { position, blockId, content, page, size } = validation.data;
 
   const { data, error } = await supabase
     .from("blocks")
     .update({
       ...(position && { position }),
+      ...(size && { size }),
       ...(content && { content }),
       ...(page !== undefined && { page }),
       updated_at: new Date().toISOString(),

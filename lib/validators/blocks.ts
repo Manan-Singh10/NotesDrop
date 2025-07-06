@@ -8,11 +8,15 @@ export const PatchBlockSchema = z.object({
     .object({
       x: z.number(),
       y: z.number(),
-      width: z.number().optional(),
-      height: z.number().optional(),
     })
     .optional(),
   page: z.number().int().min(1).optional(),
+  size: z
+    .object({
+      width: z.number(),
+      height: z.number(),
+    })
+    .optional(),
 });
 
 export type UpdateBlockPayload = {
@@ -20,6 +24,7 @@ export type UpdateBlockPayload = {
   position?: { x: number; y: number; width?: number; height?: number };
   content?: Record<string, unknown>;
   page?: number;
+  size?: { width: number; height: number };
 };
 
 export interface BlockType {
@@ -30,10 +35,12 @@ export interface BlockType {
   position: {
     x: number;
     y: number;
-    width: number;
-    height: number;
   };
   page: number;
   created_at: string;
   updated_at: string;
+  size: {
+    width: number;
+    height: number;
+  };
 }

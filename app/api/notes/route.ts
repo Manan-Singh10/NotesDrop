@@ -10,11 +10,13 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET() {
   const supabase = await createClient();
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError || !user)
+  const user = session?.user;
+
+  if (sessionError || !user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data, error } = await supabase
@@ -41,13 +43,14 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createClient();
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError || !user) {
+  const user = session?.user;
+
+  if (sessionError || !user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const { data, error } = await supabase
     .from("notes")
@@ -72,11 +75,13 @@ export async function PATCH(request: NextRequest) {
 
   const supabase = await createClient();
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError || !user)
+  const user = session?.user;
+
+  if (sessionError || !user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data, error } = await supabase
@@ -103,11 +108,13 @@ export async function DELETE(request: NextRequest) {
 
   const supabase = await createClient();
   const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  if (userError || !user)
+  const user = session?.user;
+
+  if (sessionError || !user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { error } = await supabase

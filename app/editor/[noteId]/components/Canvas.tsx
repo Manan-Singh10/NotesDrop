@@ -28,6 +28,7 @@ const Canvas = ({ noteId }: { noteId: string }) => {
               key={block.id}
               blockId={block.id}
               position={block.position}
+              size={block.size}
               content={block.content}
             />
           ))}
