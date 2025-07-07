@@ -25,7 +25,6 @@ export async function updateBlock(payload: UpdateBlockPayload) {
 }
 
 export async function updateContent(payload: UpdateContentPayload) {
-  console.log(payload);
   const response = await fetch("/api/blocks", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },

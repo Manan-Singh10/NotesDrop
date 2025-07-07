@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Rnd } from "react-rnd";
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import type { ResizeDirection } from "re-resizable";
 import Tiptap from "./TiptapEditor";
 import { useEditorStore } from "@/store/useEditroStore";
 import { updateBlock } from "@/lib/api/blocks";
+import debounce from "lodash.debounce";
 
 interface BlockProps {
   blockId: string;
@@ -30,6 +31,45 @@ const Block = ({
   const activeBlockId = useEditorStore((s) => s.activeBlockId);
   const isEditing = useEditorStore((s) => s.isEditing);
 
+  const debouncedUpdateBlock = useMemo(() => {
+    return debounce(
+      (
+        blockId: string,
+        newPosition?: { x: number; y: number },
+        newSize?: { width: number; height: number }
+      ) => {
+        if (
+          (newPosition?.x === x && newPosition?.y === y) ||
+          (newSize?.width === width && newSize?.height === height)
+        )
+          return;
+
+        const payload: {
+          blockId: string;
+          position?: { x: number; y: number };
+          size?: { width: number; height: number };
+        } = { blockId };
+
+        if (newPosition) payload.position = newPosition;
+        if (newSize) payload.size = newSize;
+
+        updateBlock(payload).catch((err) =>
+          console.error(
+            `Failed to update ${newPosition ? "position" : "size"}:`,
+            err
+          )
+        );
+      },
+      2000
+    );
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      debouncedUpdateBlock.cancel();
+    };
+  }, [debouncedUpdateBlock]);
+
   const setPosition = (e: DraggableEvent, data: DraggableData) => {
     const newPosition = {
       x: data.x,
@@ -41,9 +81,7 @@ const Block = ({
       ...newPosition,
     }));
 
-    updateBlock({ blockId, position: newPosition }).catch((err) =>
-      console.error("Failed to update position:", err)
-    );
+    debouncedUpdateBlock(blockId, newPosition);
   };
 
   const setSize = (
@@ -61,9 +99,7 @@ const Block = ({
       ...newSize,
     }));
 
-    updateBlock({ blockId, size: newSize }).catch((err) =>
-      console.error("Failed to update size:", err)
-    );
+    debouncedUpdateBlock(blockId, undefined, newSize);
   };
 
   return (

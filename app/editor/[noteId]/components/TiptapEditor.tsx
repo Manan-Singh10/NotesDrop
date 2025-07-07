@@ -4,7 +4,8 @@ import { updateContent } from "@/lib/api/blocks";
 import { useEditorStore } from "@/store/useEditroStore";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useCallback, useEffect, useRef } from "react";
+import { debounce } from "lodash";
+import { useEffect, useMemo } from "react";
 
 interface Props {
   blockId: string;
@@ -16,24 +17,19 @@ const Tiptap = ({ blockId, content }: Props) => {
   const setActiveBlockId = useEditorStore((s) => s.setActiveBlockId);
   const setIsEditing = useEditorStore((s) => s.setIsEditing);
 
+  const debouncedContentUpdate = useMemo(() => {
+    return debounce((newContent: string) => {
+      if (newContent === content.text) return;
+
+      updateContent({ blockId, content: { text: newContent } }).catch((err) =>
+        console.error(err)
+      );
+    }, 1000);
+  }, [blockId, content]);
+
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const debouncedContentUpdate = useCallback(
-    (content: string) => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        updateContent({ blockId, content: { text: content } });
-        timeoutRef.current = null;
-      }, 1000);
-    },
-    [blockId]
-  );
+    return () => debouncedContentUpdate.cancel();
+  }, [debouncedContentUpdate]);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -50,8 +46,8 @@ const Tiptap = ({ blockId, content }: Props) => {
     },
     onUpdate: () => {
       if (!editor) return;
-      const content = editor!.getHTML();
-      debouncedContentUpdate(content);
+      const newContent = editor!.getHTML();
+      debouncedContentUpdate(newContent);
     },
     immediatelyRender: false,
   });
