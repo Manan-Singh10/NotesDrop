@@ -1,16 +1,28 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import { updateContent } from "@/lib/api/blocks";
 import { useEditorStore } from "@/store/useEditroStore";
 import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { debounce } from "lodash";
-import { useEffect, useMemo } from "react";
+
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Heading from "@tiptap/extension-heading";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+
+import { createLowlight, common } from "lowlight";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import "highlight.js/styles/atom-one-dark.css";
+import { linkConfig } from "@/lib/tiptap-extension-config";
 
 interface Props {
   blockId: string;
   content: Record<string, string>;
 }
+
+const lowlight = createLowlight(common);
 
 const Tiptap = ({ blockId, content }: Props) => {
   const setActiveEditor = useEditorStore((s) => s.setActiveEditor);
@@ -32,7 +44,21 @@ const Tiptap = ({ blockId, content }: Props) => {
   }, [debouncedContentUpdate]);
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        codeBlock: false,
+        heading: false,
+      }),
+      Underline,
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+      Heading.configure({
+        levels: [1, 2, 3, 4],
+      }),
+      Image,
+      Link.configure(linkConfig),
+    ],
     content: content.text,
     onFocus: () => {
       if (editor) {

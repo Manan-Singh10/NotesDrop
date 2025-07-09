@@ -62,7 +62,7 @@ const Block = ({
       },
       2000
     );
-  }, []);
+  }, [x, y, width, height]);
 
   useEffect(() => {
     return () => {

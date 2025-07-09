@@ -122,6 +122,25 @@
   }
 }
 
+.prose p {
+  margin: 0;
+  padding: 0;
+}
+
+.prose ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.prose ol li {
+  margin: 0;
+  padding: 0;
+}
+
+.prose a {
+  cursor: pointer;
+  color: rgb(0, 98, 209);
+}
 /* 
 @import "tailwindcss";
 
