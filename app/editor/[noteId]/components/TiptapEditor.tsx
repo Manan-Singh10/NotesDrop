@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { updateContent } from "@/lib/api/blocks";
 import { useEditorStore } from "@/store/useEditroStore";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -20,14 +20,32 @@ import { linkConfig } from "@/lib/tiptap-extension-config";
 interface Props {
   blockId: string;
   content: Record<string, string>;
+  setRndHeight: (newHeight: number) => void;
 }
 
 const lowlight = createLowlight(common);
 
-const Tiptap = ({ blockId, content }: Props) => {
+const Tiptap = ({ blockId, content, setRndHeight }: Props) => {
   const setActiveEditor = useEditorStore((s) => s.setActiveEditor);
   const setActiveBlockId = useEditorStore((s) => s.setActiveBlockId);
   const setIsEditing = useEditorStore((s) => s.setIsEditing);
+
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { height } = entry.contentRect;
+        setRndHeight(height);
+      }
+    });
+
+    observer.observe(contentRef.current);
+
+    return () => observer.disconnect();
+  }, [setRndHeight]);
 
   const debouncedContentUpdate = useMemo(() => {
     return debounce((newContent: string) => {
@@ -79,7 +97,12 @@ const Tiptap = ({ blockId, content }: Props) => {
   });
 
   return (
-    <EditorContent className="m-0 w-full h-full outline-none" editor={editor} />
+    <div ref={contentRef}>
+      <EditorContent
+        className="m-0 w-full h-full outline-none"
+        editor={editor}
+      />
+    </div>
   );
 };
 

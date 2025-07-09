@@ -102,6 +102,10 @@ const Block = ({
     debouncedUpdateBlock(blockId, undefined, newSize);
   };
 
+  const setRndHeight = (newHeight: number) => {
+    setRnd((prev) => ({ ...prev, height: newHeight }));
+  };
+
   return (
     <Rnd
       disableDragging={isEditing}
@@ -110,9 +114,11 @@ const Block = ({
       position={{ x: rnd.x, y: rnd.y }}
       onDragStop={setPosition}
       onResizeStop={setSize}
-      className={`${activeBlockId === blockId ? "border-1" : ""}`}
+      className={`${
+        activeBlockId === blockId ? "border-1" : ""
+      }  flex items-center justify-center`}
     >
-      <Tiptap blockId={blockId} content={content} />
+      <Tiptap blockId={blockId} content={content} setRndHeight={setRndHeight} />
     </Rnd>
   );
 };

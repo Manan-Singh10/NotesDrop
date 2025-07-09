@@ -141,6 +141,30 @@
   cursor: pointer;
   color: rgb(0, 98, 209);
 }
+.prose h1 {
+  margin: 0;
+}
+
+.prose h2 {
+  margin: 0;
+}
+
+.prose h3 {
+  margin: 0;
+}
+
+.prose h4 {
+  margin: 0;
+}
+
+.prose pre {
+  margin: 0;
+}
+
+.prose blockquote {
+  margin: 0;
+}
+
 /* 
 @import "tailwindcss";
 
