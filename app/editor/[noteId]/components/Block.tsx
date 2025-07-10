@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Rnd } from "react-rnd";
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import type { ResizeDirection } from "re-resizable";
@@ -70,41 +70,49 @@ const Block = ({
     };
   }, [debouncedUpdateBlock]);
 
-  const setPosition = (e: DraggableEvent, data: DraggableData) => {
-    const newPosition = {
-      x: data.x,
-      y: data.y,
-    };
+  const setPosition = useCallback(
+    (e: DraggableEvent, data: DraggableData) => {
+      const newPosition = {
+        x: data.x,
+        y: data.y,
+      };
 
-    setRnd((prev) => ({
-      ...prev,
-      ...newPosition,
-    }));
+      setRnd((prev) => ({
+        ...prev,
+        ...newPosition,
+      }));
 
-    debouncedUpdateBlock(blockId, newPosition);
-  };
+      debouncedUpdateBlock(blockId, newPosition);
+    },
+    [blockId, debouncedUpdateBlock]
+  );
 
-  const setSize = (
-    e: MouseEvent | TouchEvent,
-    direction: ResizeDirection,
-    ref: HTMLElement
-  ) => {
-    const newSize = {
-      width: ref.offsetWidth,
-      height: ref.offsetHeight,
-    };
+  const setSize = useCallback(
+    (
+      e: MouseEvent | TouchEvent,
+      direction: ResizeDirection,
+      ref: HTMLElement
+    ) => {
+      const newSize = {
+        width: ref.offsetWidth,
+        height: ref.offsetHeight,
+      };
 
-    setRnd((prev) => ({
-      ...prev,
-      ...newSize,
-    }));
+      setRnd((prev) => ({
+        ...prev,
+        ...newSize,
+      }));
 
-    debouncedUpdateBlock(blockId, undefined, newSize);
-  };
+      debouncedUpdateBlock(blockId, undefined, newSize);
+    },
+    [blockId, debouncedUpdateBlock]
+  );
 
-  const setRndHeight = (newHeight: number) => {
+  const setRndHeight = useCallback((newHeight: number) => {
     setRnd((prev) => ({ ...prev, height: newHeight }));
-  };
+  }, []);
+
+  console.log(2);
 
   return (
     <Rnd

@@ -12,7 +12,7 @@ const EditorPage = async ({ params }: Props) => {
   const { noteId } = await params;
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-stone-100">
+    <div className="flex flex-col items-center w-full min-h-screen bg-stone-100 overflow-x-scroll">
       <EditorMenuBar />
       <Canvas noteId={noteId} />
       {noteId}

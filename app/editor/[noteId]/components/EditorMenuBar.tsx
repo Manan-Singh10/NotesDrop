@@ -74,7 +74,7 @@ const MenuBar = () => {
   }, [editor]);
 
   return (
-    <div className="flex gap-4 p-2 m-3 bg-gray-50 border-b sticky top-0 z-50 items-center rounded shadow-xs ">
+    <div className="flex gap-1 sm:gap-2 md:gap-4 p-2 m-3 bg-gray-50 border-b sticky top-0 z-50 items-center rounded shadow-xs ">
       <FaBold
         onClick={() => editor?.chain().focus().toggleBold().run()}
         size={22}

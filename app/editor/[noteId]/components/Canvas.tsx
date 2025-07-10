@@ -19,6 +19,8 @@ const Canvas = ({ noteId }: { noteId: string }) => {
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error...</div>;
 
+  console.log(1);
+
   return (
     <div className="aspect-[10/16] bg-white min-w-80 sm:min-w-120 md:min-w-180 lg:min-w-200 shadow-sm rounded relative prose">
       {blocks?.length === 0
