@@ -11,14 +11,25 @@ import {
   FaQuoteLeft,
   FaStrikethrough,
   FaUnderline,
+  FaTrash,
 } from "react-icons/fa";
 import { AiOutlineOrderedList, AiOutlineUnorderedList } from "react-icons/ai";
 import { SelectHeading } from "./SelectHeading";
 import { CiImageOn } from "react-icons/ci";
 import { useCallback } from "react";
+import { deleteBlock } from "@/lib/api/blocks";
+import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { useToast } from "@/contexts/ToastContext";
 
 const MenuBar = () => {
   const editor = useEditorStore((s) => s.activeEditor);
+  const activeBlockId = useEditorStore((s) => s.activeBlockId);
+  const setActiveBlockId = useEditorStore((s) => s.setActiveBlockId);
+  const queryClient = useQueryClient();
+  const params = useParams();
+  const noteId = params.noteId as string;
+  const { showToast } = useToast();
 
   const boldActive = useActiveMark("bold");
   const italicActive = useActiveMark("italic");
@@ -72,6 +83,20 @@ const MenuBar = () => {
       }
     }
   }, [editor]);
+
+  const handleDeleteBlock = useCallback(async () => {
+    if (!activeBlockId) return;
+
+    try {
+      await deleteBlock(activeBlockId);
+      setActiveBlockId(null);
+      queryClient.invalidateQueries({ queryKey: ["blocks", noteId] });
+      showToast("Block deleted successfully", "success", 3000);
+    } catch (error) {
+      console.error("Failed to delete block:", error);
+      showToast("Failed to delete block. Please try again.", "error", 4000);
+    }
+  }, [activeBlockId, setActiveBlockId, queryClient, noteId, showToast]);
 
   return (
     <div className="flex gap-1 sm:gap-2 md:gap-4 p-2 m-3 bg-gray-50 border-b sticky top-0 z-50 items-center rounded shadow-xs ">
@@ -130,6 +155,13 @@ const MenuBar = () => {
         onClick={setLink}
         size={22}
         className={`${baseClass} ${linkActive ? activeClass : ""}`}
+      />
+      <FaTrash
+        onClick={handleDeleteBlock}
+        size={22}
+        className={`${baseClass} ${!activeBlockId ? "opacity-50 cursor-not-allowed" : "hover:bg-red-200"}`}
+        style={{ pointerEvents: !activeBlockId ? "none" : "auto" }}
+        title={!activeBlockId ? "No block selected" : "Delete selected block"}
       />
     </div>
   );

@@ -14,6 +14,8 @@ interface BlockProps {
   position: { x: number; y: number };
   content: Record<string, string>;
   size: { width: number; height: number };
+  isNewBlock?: boolean;
+  onBlockReady?: () => void;
 }
 
 const Block = ({
@@ -21,6 +23,8 @@ const Block = ({
   position: { x, y },
   size: { width, height },
   content,
+  isNewBlock = false,
+  onBlockReady,
 }: BlockProps) => {
   const [rnd, setRnd] = useState({
     width,
@@ -122,11 +126,18 @@ const Block = ({
       position={{ x: rnd.x, y: rnd.y }}
       onDragStop={setPosition}
       onResizeStop={setSize}
+      onDoubleClick={(e: React.MouseEvent) => e.stopPropagation()}
       className={`${
         activeBlockId === blockId ? "border-1" : ""
       }  flex items-center justify-center`}
     >
-      <Tiptap blockId={blockId} content={content} setRndHeight={setRndHeight} />
+      <Tiptap 
+        blockId={blockId} 
+        content={content} 
+        setRndHeight={setRndHeight}
+        isNewBlock={isNewBlock}
+        onBlockReady={onBlockReady}
+      />
     </Rnd>
   );
 };

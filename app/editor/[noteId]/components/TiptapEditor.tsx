@@ -21,11 +21,13 @@ interface Props {
   blockId: string;
   content: Record<string, string>;
   setRndHeight: (newHeight: number) => void;
+  isNewBlock?: boolean;
+  onBlockReady?: () => void;
 }
 
 const lowlight = createLowlight(common);
 
-const Tiptap = ({ blockId, content, setRndHeight }: Props) => {
+const Tiptap = ({ blockId, content, setRndHeight, isNewBlock = false, onBlockReady }: Props) => {
   const setActiveEditor = useEditorStore((s) => s.setActiveEditor);
   const setActiveBlockId = useEditorStore((s) => s.setActiveBlockId);
   const setIsEditing = useEditorStore((s) => s.setIsEditing);
@@ -95,6 +97,22 @@ const Tiptap = ({ blockId, content, setRndHeight }: Props) => {
     },
     immediatelyRender: false,
   });
+
+  // Auto-focus and select all text for new blocks
+  useEffect(() => {
+    if (isNewBlock && editor && content.text === "type or insert something here") {
+      // Focus the editor
+      editor.commands.focus();
+      
+      // Select all text
+      editor.commands.selectAll();
+      
+      // Call onBlockReady to clean up
+      if (onBlockReady) {
+        onBlockReady();
+      }
+    }
+  }, [isNewBlock, editor, content.text, onBlockReady]);
 
   return (
     <div ref={contentRef}>
