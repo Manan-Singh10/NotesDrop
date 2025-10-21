@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { noteId: string } }
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
   const supabase = await createClient();
 
@@ -23,7 +23,7 @@ export async function POST(
     // Verify the note belongs to the user
     const { data: note, error: noteError } = await supabase
       .from("notes")
-      .select("id, user_id")
+      .select("id, user_id, title")
       .eq("id", noteId)
       .eq("user_id", user.id)
       .single();

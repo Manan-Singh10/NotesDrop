@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { noteId: string } }
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
   const supabase = await createClient();
 
@@ -58,21 +58,8 @@ export async function POST(
       }
 
       // Extract content preview from blocks
-      const hasText = blocks.some(block => 
-        block.content && 
-        (typeof block.content === 'string' || 
-         (typeof block.content === 'object' && block.content.text))
-      );
-
-      const hasImages = blocks.some(block => 
-        block.content && 
-        typeof block.content === 'object' && 
-        block.content.text && 
-        block.content.text.includes('<img')
-      );
 
       // Get first text content for preview
-      let contentPreview = '';
       for (const block of blocks) {
         if (block.content) {
           let text = '';
@@ -84,8 +71,6 @@ export async function POST(
           }
           
           if (text.trim()) {
-            contentPreview = text.trim().substring(0, 50);
-            if (text.trim().length > 50) contentPreview += '...';
             break;
           }
         }
@@ -100,7 +85,6 @@ export async function POST(
         .replace(/'/g, '&#39;');
 
       const escapedTitle = escapeXml(note.title || 'Untitled Note');
-      const escapedPreview = escapeXml(contentPreview);
 
       // Create a more realistic note editor thumbnail
       const svgThumbnail = `
@@ -199,7 +183,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { noteId: string } }
+  { params }: { params: Promise<{ noteId: string }> }
 ) {
   const supabase = await createClient();
 

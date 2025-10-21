@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   const supabase = await createClient();
 
   const {
@@ -59,18 +59,6 @@ export async function POST(request: NextRequest) {
         }
 
         // Create thumbnail
-        const hasText = blocks.some(block => 
-          block.content && 
-          (typeof block.content === 'string' || 
-           (typeof block.content === 'object' && block.content.text))
-        );
-
-        const hasImages = blocks.some(block => 
-          block.content && 
-          typeof block.content === 'object' && 
-          block.content.text && 
-          block.content.text.includes('<img')
-        );
 
         // Escape text for XML
         const escapeXml = (text: string) => text

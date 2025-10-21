@@ -14,8 +14,7 @@ export const generateThumbnailFromCanvas = async (
   const {
     width = 400,
     height = 200,
-    quality = 0.8,
-    format = 'png'
+    quality = 0.8
   } = options;
 
   try {
@@ -56,7 +55,7 @@ export const generateThumbnailFromCanvas = async (
         width: width + 'px',
         height: height + 'px',
       },
-      filter: (node: any) => {
+      filter: (node: Node) => {
         // Skip script tags and other non-essential elements
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;

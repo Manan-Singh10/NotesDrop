@@ -55,7 +55,7 @@ export const downloadPageAsPDF = async (element: HTMLElement, filename: string =
         width: element.offsetWidth + 'px',
         height: element.offsetHeight + 'px',
       },
-      filter: (node: any) => {
+      filter: (node: Node) => {
         // Skip script tags and other non-essential elements
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;
@@ -168,7 +168,7 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
 
         // Add blocks to the page element
         if (blocks && blocks.length > 0) {
-          blocks.forEach((block: any) => {
+          blocks.forEach((block: { position: { x: number; y: number }; size: { width: number; height: number }; content: string | { text: string } | Record<string, unknown> }) => {
             const blockElement = document.createElement('div');
             blockElement.style.position = 'absolute';
             blockElement.style.left = `${block.position.x}px`;
@@ -188,9 +188,9 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
             if (block.content) {
               if (typeof block.content === 'string') {
                 blockElement.innerHTML = block.content;
-              } else if (block.content.text) {
+              } else if (typeof block.content === 'object' && 'text' in block.content) {
                 // TipTap content is stored as content.text
-                blockElement.innerHTML = block.content.text;
+                blockElement.innerHTML = (block.content as { text: string }).text;
               } else if (typeof block.content === 'object') {
                 // Fallback for other object structures
                 blockElement.textContent = JSON.stringify(block.content);
@@ -298,7 +298,7 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
             width: '480px',
             height: '744px',
           },
-          filter: (node: any) => {
+          filter: (node: Node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node as Element;
               if (element.tagName === 'SCRIPT' || element.tagName === 'NOSCRIPT') {

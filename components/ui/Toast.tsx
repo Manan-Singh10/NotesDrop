@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { FaCheckCircle, FaExclamationCircle, FaTimes } from "react-icons/fa";
 
 export interface ToastProps {
@@ -21,6 +21,13 @@ const Toast: React.FC<ToastProps> = ({ id, message, type, duration = 3000, onClo
     return () => clearTimeout(timer);
   }, []);
 
+  const handleClose = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      onClose(id);
+    }, 300); // Match transition duration
+  }, [onClose, id]);
+
   useEffect(() => {
     // Auto-close after duration
     const timer = setTimeout(() => {
@@ -28,14 +35,7 @@ const Toast: React.FC<ToastProps> = ({ id, message, type, duration = 3000, onClo
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration]);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      onClose(id);
-    }, 300); // Match transition duration
-  };
+  }, [duration, handleClose]);
 
   const getIcon = () => {
     switch (type) {

@@ -50,9 +50,6 @@ const Canvas = ({ noteId }: { noteId: string }) => {
     setZoom(prev => Math.max(prev - 0.1, 0.5)); // Min zoom 0.5x
   };
 
-  const handleResetZoom = () => {
-    setZoom(1);
-  };
 
   const handleCreatePage = async () => {
     try {
@@ -204,7 +201,7 @@ const Canvas = ({ noteId }: { noteId: string }) => {
       <div className="fixed bottom-4 right-4 z-50 flex items-center gap-4 bg-white shadow-lg rounded-lg px-3 py-2 border">
         {/* Page Navigation */}
         <div className="flex items-center gap-1">
-          {pages.map((page: any) => (
+          {pages.map((page: { id: string; page_number: number }) => (
             <button
               key={page.id}
               onClick={() => setCurrentPage(page.page_number)}

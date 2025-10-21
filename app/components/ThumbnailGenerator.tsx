@@ -2,7 +2,6 @@
 
 import { generateThumbnailFromCanvas } from "@/lib/client-thumbnail-utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRef } from "react";
 
 interface ThumbnailGeneratorProps {
   noteId: string;

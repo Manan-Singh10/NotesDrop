@@ -3,9 +3,9 @@ import EditorMenuBar from "./components/EditorMenuBar";
 import Canvas from "./components/Canvas";
 
 interface Props {
-  params: {
+  params: Promise<{
     noteId: string;
-  };
+  }>;
 }
 
 const EditorPage = async ({ params }: Props) => {

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 
 export default function DebugThumbnailPage() {
-  const [notes, setNotes] = useState<any[]>([]);
-  const [blocks, setBlocks] = useState<any[]>([]);
+  const [notes, setNotes] = useState<Array<{ id: string; title: string; thumbnail_url?: string; thumbnail_updated_at?: string }>>([]);
+  const [blocks, setBlocks] = useState<Array<{ id: string; type: string; content: unknown; position?: { x: number; y: number }; size?: { width: number; height: number } }>>([]);
   const [selectedNoteId, setSelectedNoteId] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
