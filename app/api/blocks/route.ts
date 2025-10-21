@@ -3,6 +3,7 @@
 import { PatchBlockSchema } from "@/lib/validators/blocks";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { thumbnailScheduler } from "@/lib/thumbnail-scheduler";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -107,6 +108,37 @@ export async function PATCH(request: NextRequest) {
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Schedule thumbnail update if content was changed and it's on page 1
+  if (content && data && data.length > 0) {
+    const block = data[0];
+    if (block.page === 1) {
+      // Get the note_id from the block
+      const { data: blockData } = await supabase
+        .from("blocks")
+        .select("note_id")
+        .eq("id", blockId)
+        .single();
+
+      if (blockData?.note_id) {
+        // Schedule thumbnail generation with debouncing
+        thumbnailScheduler.scheduleThumbnailUpdate(blockData.note_id, async () => {
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notes/${blockData.note_id}/thumbnail`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            });
+            
+            if (!response.ok) {
+              console.error('Failed to generate thumbnail:', await response.text());
+            }
+          } catch (error) {
+            console.error('Error calling thumbnail generation API:', error);
+          }
+        });
+      }
+    }
+  }
 
   return NextResponse.json(data, { status: 200 });
 }

@@ -16,11 +16,13 @@ import {
 import { AiOutlineOrderedList, AiOutlineUnorderedList } from "react-icons/ai";
 import { SelectHeading } from "./SelectHeading";
 import { CiImageOn } from "react-icons/ci";
+import { FaFilePdf } from "react-icons/fa";
 import { useCallback } from "react";
 import { deleteBlock } from "@/lib/api/blocks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
+import { downloadPageAsPDF } from "@/lib/pdf-utils";
 
 const MenuBar = () => {
   const editor = useEditorStore((s) => s.activeEditor);
@@ -98,6 +100,30 @@ const MenuBar = () => {
     }
   }, [activeBlockId, setActiveBlockId, queryClient, noteId, showToast]);
 
+  const handleDownloadPDF = useCallback(async () => {
+    try {
+      // Find the canvas element (the white page area with blocks)
+      const canvasElement = document.querySelector('.prose.mx-auto') as HTMLElement;
+      if (!canvasElement) {
+        showToast("Could not find page content to download", "error", 3000);
+        return;
+      }
+
+      // Show loading toast
+      showToast("Generating PDF...", "info", 2000);
+
+      // Generate filename with note ID and current date
+      const currentDate = new Date().toISOString().split('T')[0];
+      const filename = `note-${noteId}-${currentDate}.pdf`;
+
+      await downloadPageAsPDF(canvasElement, filename);
+      showToast("PDF downloaded successfully", "success", 3000);
+    } catch (error) {
+      console.error("Failed to download PDF:", error);
+      showToast("Failed to download PDF. Please try again.", "error", 4000);
+    }
+  }, [noteId, showToast]);
+
   return (
     <div className="flex gap-1 sm:gap-2 md:gap-4 p-2 m-3 bg-gray-50 border-b sticky top-0 z-50 items-center rounded shadow-xs ">
       <FaBold
@@ -162,6 +188,13 @@ const MenuBar = () => {
         className={`${baseClass} ${!activeBlockId ? "opacity-50 cursor-not-allowed" : "hover:bg-red-200"}`}
         style={{ pointerEvents: !activeBlockId ? "none" : "auto" }}
         title={!activeBlockId ? "No block selected" : "Delete selected block"}
+      />
+      <div className="w-px h-6 bg-gray-300 mx-1"></div>
+      <FaFilePdf
+        onClick={handleDownloadPDF}
+        size={22}
+        className={`${baseClass} hover:bg-red-100`}
+        title="Download current page as PDF"
       />
     </div>
   );

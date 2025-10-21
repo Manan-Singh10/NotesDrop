@@ -15,7 +15,6 @@ const EditorPage = async ({ params }: Props) => {
     <div className="flex flex-col items-center w-full min-h-screen bg-stone-100 overflow-x-scroll">
       <EditorMenuBar />
       <Canvas noteId={noteId} />
-      {noteId}
     </div>
   );
 };

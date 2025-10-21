@@ -21,7 +21,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("notes")
-    .select("*")
+    .select("id, title, user_id, updated_at, created_at, thumbnail_url, thumbnail_updated_at")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 

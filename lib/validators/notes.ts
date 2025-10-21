@@ -6,6 +6,8 @@ export type Note = {
   user_id: string;
   updated_at: string;
   created_at: string;
+  thumbnail_url?: string | null;
+  thumbnail_updated_at?: string | null;
 };
 
 export const updateNoteSchema = z.object({

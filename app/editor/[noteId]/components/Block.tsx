@@ -116,8 +116,6 @@ const Block = ({
     setRnd((prev) => ({ ...prev, height: newHeight }));
   }, []);
 
-  console.log(2);
-
   return (
     <Rnd
       disableDragging={isEditing}

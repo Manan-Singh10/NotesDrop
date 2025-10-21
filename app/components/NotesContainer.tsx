@@ -28,6 +28,7 @@ const NotesContainer = () => {
             title={note.title}
             updateAt={note.updated_at}
             noteId={note.id}
+            thumbnailUrl={note.thumbnail_url}
           />
         ))}
       </div>
