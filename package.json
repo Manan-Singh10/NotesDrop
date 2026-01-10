@@ -35,7 +35,7 @@
     "lodash.debounce": "^4.0.8",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.517.0",
-    "next": "15.3.3",
+    "next": "15.3.8",
     "re-resizable": "^6.11.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
