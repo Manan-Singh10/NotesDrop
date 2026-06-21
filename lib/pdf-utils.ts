@@ -136,18 +136,19 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
       throw new Error('No pages found to download');
     }
 
-    // Create PDF
+    // Canvas is 480×679px — exact A4 proportions (480 × 297/210 ≈ 679)
+    const CANVAS_W_PX = 480;
+    const CANVAS_H_PX = 679;
+
+    // Use standard A4 — canvas proportions match exactly
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
     });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfWidth  = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 15;
-    const availableWidth = pdfWidth - (margin * 2);
-    const availableHeight = pdfHeight - (margin * 2);
 
     let isFirstPage = true;
 
@@ -159,9 +160,9 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
         
         // Create a temporary page element
         const pageElement = document.createElement('div');
-        pageElement.className = 'w-120 h-[744px] bg-white shadow-sm rounded relative prose mx-auto';
-        pageElement.style.width = '480px'; // w-120 = 480px
-        pageElement.style.height = '744px';
+        pageElement.className = 'w-120 h-[679px] bg-white shadow-sm rounded relative prose mx-auto';
+        pageElement.style.width = '480px';
+        pageElement.style.height = '679px';
         pageElement.style.backgroundColor = '#ffffff';
         pageElement.style.position = 'relative';
         pageElement.style.overflow = 'hidden';
@@ -175,8 +176,6 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
             blockElement.style.top = `${block.position.y}px`;
             blockElement.style.width = `${block.size.width}px`;
             blockElement.style.height = `${block.size.height}px`;
-            blockElement.style.border = '1px solid #e5e7eb';
-            blockElement.style.borderRadius = '4px';
             blockElement.style.padding = '8px';
             blockElement.style.backgroundColor = '#ffffff';
             blockElement.style.overflow = 'hidden';
@@ -207,7 +206,7 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
         tempContainer.style.left = '-9999px';
         tempContainer.style.top = '-9999px';
         tempContainer.style.width = '480px';
-        tempContainer.style.height = '744px';
+        tempContainer.style.height = '679px';
         tempContainer.style.backgroundColor = '#ffffff';
         tempContainer.style.overflow = 'hidden';
         
@@ -290,13 +289,13 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
         const dataUrl = await domtoimage.toPng(pageElement, {
           quality: 1.0,
           bgcolor: '#ffffff',
-          width: 480 * 4, // 4x scaling
-          height: 744 * 4,
+          width: CANVAS_W_PX * 4,
+          height: CANVAS_H_PX * 4,
           style: {
             transform: 'scale(4)',
             transformOrigin: 'top left',
-            width: '480px',
-            height: '744px',
+            width: `${CANVAS_W_PX}px`,
+            height: `${CANVAS_H_PX}px`,
           },
           filter: (node: Node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
@@ -313,35 +312,14 @@ export const downloadAllPagesAsPDF = async (noteId: string, filename: string = '
         document.body.removeChild(tempContainer);
         document.head.removeChild(styleElement);
 
-        // Get image dimensions
-        const img = new Image();
-        img.src = dataUrl;
-        
-        await new Promise((resolve) => {
-          img.onload = resolve;
-        });
-        
-        const originalWidth = img.width / 4;
-        const originalHeight = img.height / 4;
-        
-        const widthRatio = availableWidth / originalWidth;
-        const heightRatio = availableHeight / originalHeight;
-        const scale = Math.min(widthRatio, heightRatio);
-        
-        const finalWidth = originalWidth * scale;
-        const finalHeight = originalHeight * scale;
-        
-        const imgX = (pdfWidth - finalWidth) / 2;
-        const imgY = (pdfHeight - finalHeight) / 2;
-
         // Add new page if not the first page
         if (!isFirstPage) {
-          pdf.addPage();
+          pdf.addPage([pdfWidth, pdfHeight]);
         }
         isFirstPage = false;
 
-        // Add image to PDF
-        pdf.addImage(dataUrl, 'PNG', imgX, imgY, finalWidth, finalHeight, undefined, 'FAST');
+        // Fill the entire page — no margins, preserving exact canvas proportions
+        pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
 
       } catch (pageError) {
         console.error(`Error processing page ${page.page_number}:`, pageError);

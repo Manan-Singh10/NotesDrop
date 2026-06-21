@@ -22,7 +22,10 @@ import { deleteBlock } from "@/lib/api/blocks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
-import { downloadPageAsPDF } from "@/lib/pdf-utils";
+import { downloadAllPagesAsPDF } from "@/lib/pdf-utils";
+import { useAutosave } from "@/hooks/useAutosave";
+import { AiOutlineCloudUpload } from "react-icons/ai";
+import { FaSpinner } from "react-icons/fa";
 
 const MenuBar = () => {
   const editor = useEditorStore((s) => s.activeEditor);
@@ -42,6 +45,8 @@ const MenuBar = () => {
   const bulletListActive = useActiveMark("bulletList");
   const orderedListActive = useActiveMark("orderedList");
   const linkActive = useActiveMark("link");
+
+  const { flush, isSaving, lastSavedAt, hasPendingChanges } = useAutosave(noteId);
 
   const baseClass = "cursor-pointer p-1 rounded hover:bg-gray-200";
   const activeClass = "bg-blue-400 text-white";
@@ -102,21 +107,12 @@ const MenuBar = () => {
 
   const handleDownloadPDF = useCallback(async () => {
     try {
-      // Find the canvas element (the white page area with blocks)
-      const canvasElement = document.querySelector('.prose.mx-auto') as HTMLElement;
-      if (!canvasElement) {
-        showToast("Could not find page content to download", "error", 3000);
-        return;
-      }
+      showToast("Generating PDF for all pages...", "info", 3000);
 
-      // Show loading toast
-      showToast("Generating PDF...", "info", 2000);
-
-      // Generate filename with note ID and current date
       const currentDate = new Date().toISOString().split('T')[0];
       const filename = `note-${noteId}-${currentDate}.pdf`;
 
-      await downloadPageAsPDF(canvasElement, filename);
+      await downloadAllPagesAsPDF(noteId, filename);
       showToast("PDF downloaded successfully", "success", 3000);
     } catch (error) {
       console.error("Failed to download PDF:", error);
@@ -194,8 +190,32 @@ const MenuBar = () => {
         onClick={handleDownloadPDF}
         size={22}
         className={`${baseClass} hover:bg-red-100`}
-        title="Download current page as PDF"
+        title="Download all pages as PDF"
       />
+
+      {/* Save changes */}
+      <div className="w-px h-6 bg-gray-300 mx-1"></div>
+      <div className="flex items-center gap-2">
+        {isSaving ? (
+          <span className="flex items-center gap-1 text-xs text-gray-500">
+            <FaSpinner size={12} className="animate-spin" />
+            Saving…
+          </span>
+        ) : hasPendingChanges ? (
+          <button
+            onClick={flush}
+            title="Save changes now"
+            className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+          >
+            <AiOutlineCloudUpload size={14} />
+            Save
+          </button>
+        ) : lastSavedAt ? (
+          <span className="text-xs text-gray-400" title={new Date(lastSavedAt).toLocaleTimeString()}>
+            Saved
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 };

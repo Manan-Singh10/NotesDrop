@@ -174,7 +174,7 @@ const Canvas = ({ noteId }: { noteId: string }) => {
       <div className="w-full h-full overflow-auto p-8">
         {/* Canvas with Zoom */}
         <div 
-          className="w-120 h-[744px] bg-white shadow-sm rounded relative prose mx-auto"
+          className="w-120 h-[679px] bg-white shadow-sm rounded relative prose mx-auto"
           style={{
             transform: `scale(${zoom})`,
             transformOrigin: 'center center',

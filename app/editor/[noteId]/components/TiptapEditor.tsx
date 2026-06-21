@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { updateContent } from "@/lib/api/blocks";
 import { useEditorStore } from "@/store/useEditroStore";
+import { usePendingChangesStore } from "@/store/usePendingChangesStore";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { debounce } from "lodash";
+import { useParams } from "next/navigation";
 
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -31,6 +32,10 @@ const Tiptap = ({ blockId, content, setRndHeight, isNewBlock = false, onBlockRea
   const setActiveEditor = useEditorStore((s) => s.setActiveEditor);
   const setActiveBlockId = useEditorStore((s) => s.setActiveBlockId);
   const setIsEditing = useEditorStore((s) => s.setIsEditing);
+  const queueChange = usePendingChangesStore((s) => s.queueChange);
+
+  const params = useParams();
+  const noteId = params.noteId as string;
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -45,37 +50,27 @@ const Tiptap = ({ blockId, content, setRndHeight, isNewBlock = false, onBlockRea
     });
 
     observer.observe(contentRef.current);
-
     return () => observer.disconnect();
   }, [setRndHeight]);
 
-  const debouncedContentUpdate = useMemo(() => {
+  // Debounce so rapid keystrokes are coalesced before hitting localStorage
+  const debouncedQueue = useMemo(() => {
     return debounce((newContent: string) => {
       if (newContent === content.text) return;
-
-      updateContent({ blockId, content: { text: newContent } }).catch((err) =>
-        console.error(err)
-      );
-    }, 1000);
-  }, [blockId, content]);
+      queueChange(noteId, { blockId, content: { text: newContent } });
+    }, 500);
+  }, [blockId, noteId, content.text, queueChange]);
 
   useEffect(() => {
-    return () => debouncedContentUpdate.cancel();
-  }, [debouncedContentUpdate]);
+    return () => debouncedQueue.cancel();
+  }, [debouncedQueue]);
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        codeBlock: false,
-        heading: false,
-      }),
+      StarterKit.configure({ codeBlock: false, heading: false }),
       Underline,
-      CodeBlockLowlight.configure({
-        lowlight,
-      }),
-      Heading.configure({
-        levels: [1, 2, 3, 4],
-      }),
+      CodeBlockLowlight.configure({ lowlight }),
+      Heading.configure({ levels: [1, 2, 3, 4] }),
       Image,
       Link.configure(linkConfig),
     ],
@@ -92,32 +87,23 @@ const Tiptap = ({ blockId, content, setRndHeight, isNewBlock = false, onBlockRea
     },
     onUpdate: () => {
       if (!editor) return;
-      const newContent = editor!.getHTML();
-      debouncedContentUpdate(newContent);
+      debouncedQueue(editor.getHTML());
     },
     immediatelyRender: false,
   });
 
-  // Auto-focus and select all text for new blocks
   useEffect(() => {
     if (isNewBlock && editor && content.text === "type or insert something here") {
-      // Focus the editor
       editor.commands.focus();
-      
-      // Select all text
       editor.commands.selectAll();
-      
-      // Call onBlockReady to clean up
-      if (onBlockReady) {
-        onBlockReady();
-      }
+      if (onBlockReady) onBlockReady();
     }
   }, [isNewBlock, editor, content.text, onBlockReady]);
 
   return (
-    <div ref={contentRef}>
+    <div ref={contentRef} className="w-full px-2 py-1">
       <EditorContent
-        className="m-0 w-full h-full outline-none"
+        className="m-0 w-full outline-none [&_.ProseMirror]:outline-none"
         editor={editor}
       />
     </div>

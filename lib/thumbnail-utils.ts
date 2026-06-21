@@ -119,9 +119,9 @@ export const generateThumbnailFromPage = async (
 
     // Create a temporary page element
     const pageElement = document.createElement('div');
-    pageElement.className = 'w-120 h-[744px] bg-white shadow-sm rounded relative prose mx-auto';
-    pageElement.style.width = '480px'; // w-120 = 480px
-    pageElement.style.height = '744px';
+    pageElement.className = 'w-120 h-[679px] bg-white shadow-sm rounded relative prose mx-auto';
+    pageElement.style.width = '480px';
+    pageElement.style.height = '679px';
     pageElement.style.backgroundColor = '#ffffff';
     pageElement.style.position = 'relative';
     pageElement.style.overflow = 'hidden';
